@@ -27,6 +27,7 @@
 #define VECSIM_ALGORITHM_BF "FLAT"
 #define VECSIM_ALGORITHM_HNSW "HNSW"
 #define VECSIM_ALGORITHM_TIERED "TIERED"
+#define VECSIM_ALGORITHM_SVS "SVS"
 
 #define VECSIM_INITIAL_CAP "INITIAL_CAP"
 #define VECSIM_BLOCKSIZE "BLOCK_SIZE"
@@ -39,6 +40,9 @@
 #define VECSIM_TYPE "TYPE"
 #define VECSIM_DIM "DIM"
 #define VECSIM_DISTANCE_METRIC "DISTANCE_METRIC"
+#define VECSIM_GRAPH_DEGREE "GRAPH_DEGREE"
+#define VECSIM_WINDOW_SIZE "WINDOW_SIZE"
+#define VECSIM_NUM_THREADS "NUM_THREADS"
 
 #define VECSIM_ERR_MANDATORY(status,algorithm,arg) \
   QERR_MKBADARGS_FMT(status, "Missing mandatory parameter: cannot create %s index without specifying %s argument", algorithm, arg)
