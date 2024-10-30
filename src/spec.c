@@ -845,7 +845,7 @@ static int parseVectorField_svs(FieldSpec *fs, VecSimParams *params, ArgsCursor 
         return 0;
       }
     } else if (AC_AdvanceIfMatch(ac, VECSIM_WINDOW_SIZE)) {
-      if ((rc = AC_GetSize(ac, &params->algoParams.svsParams.window_size, AC_F_GE1)) != AC_OK) {
+      if ((rc = AC_GetSize(ac, &params->algoParams.svsParams.construction_window_size, AC_F_GE1)) != AC_OK) {
         QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_WINDOW_SIZE), rc);
         return 0;
       }
