@@ -522,6 +522,47 @@ static int parseVectorField_GetMetric(ArgsCursor *ac, VecSimMetric *metric) {
   return AC_OK;
 }
 
+// Parsing for Quantization parameter in SVS algorithm
+static int parseVectorField_GetQuantBits(ArgsCursor *ac, VecSimQuantBits  *quantBits) {
+  const char *quantBitsStr;
+  size_t len;
+  int rc;
+  if ((rc = AC_GetString(ac, &quantBitsStr, &len, 0)) != AC_OK) {
+    return rc;
+  }
+  if (STR_EQCASE(quantBitsStr, len, VECSIM_QUANT_BITS_NONE))
+    *quantBits = VecSimQuant_NONE;
+  else if (STR_EQCASE(quantBitsStr, len, VECSIM_QUANT_BITS_0))
+    *quantBits = VecSimQuant_0;
+  else if (STR_EQCASE(quantBitsStr, len, VECSIM_QUANT_BITS_4))
+    *quantBits = VecSimQuant_4;
+  else if (STR_EQCASE(quantBitsStr, len, VECSIM_QUANT_BITS_8))
+    *quantBits = VecSimQuant_8;
+  else if (STR_EQCASE(quantBitsStr, len, VECSIM_QUANT_BITS_4X8))
+    *quantBits = VecSimQuant_4x8;
+  else
+    return AC_ERR_ENOENT;
+  return AC_OK;
+}
+
+static int parseVectorField_GetOption(ArgsCursor *ac, VecSimOptionBool *option) {
+  const char *optionStr;
+  size_t len;
+  int rc;
+  if ((rc = AC_GetString(ac, &optionStr, &len, 0)) != AC_OK) {
+    return rc;
+  }
+  if (STR_EQCASE(optionStr, len, VECSIM_USE_SEARCH_HISTORY_ON))
+    *option = VecSimOption_ENABLE;
+  else if (STR_EQCASE(optionStr, len, VECSIM_USE_SEARCH_HISTORY_OFF))
+    *option = VecSimOption_DISABLE;
+  else
+    return AC_ERR_ENOENT;
+  return AC_OK;
+}
+
+
+
 // memoryLimit / 10 - default is 10% of global memory limit
 #define BLOCK_MEMORY_LIMIT ((RSGlobalConfig.vssMaxResize) ? RSGlobalConfig.vssMaxResize : memoryLimit / 10)
 
@@ -854,6 +895,39 @@ static int parseVectorField_svs(FieldSpec *fs, VecSimParams *params, ArgsCursor 
         QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_NUM_THREADS), rc);
         return 0;
       }
+    } else if (AC_AdvanceIfMatch(ac, VECSIM_QUANT_BITS)) {
+      if ((rc = parseVectorField_GetQuantBits(ac, &params->algoParams.svsParams.quantBits)) != AC_OK) {
+        QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_QUANT_BITS), rc);
+        return 0;
+      }
+    }
+    else if (AC_AdvanceIfMatch(ac, VECSIM_WSSEARCH)) {
+      if ((rc = AC_GetSize(ac, &params->algoParams.svsParams.search_window_size, AC_F_GE1)) != AC_OK) {
+        QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_WSSEARCH), rc);
+        return 0;
+      }
+    } else if (AC_AdvanceIfMatch(ac, VECSIM_MAX_CANDIDATE_POOL_SIZE)) {
+      if ((rc = AC_GetSize(ac, &params->algoParams.svsParams.max_candidate_pool_size, AC_F_GE1)) != AC_OK) {
+        QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_MAX_CANDIDATE_POOL_SIZE), rc);
+        return 0;
+      }
+    } else if (AC_AdvanceIfMatch(ac, VECSIM_PRUNE_TO)) {
+      if ((rc = AC_GetSize(ac, &params->algoParams.svsParams.prune_to, AC_F_GE1)) != AC_OK) {
+        QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_PRUNE_TO), rc);
+        return 0;
+      }
+    } else if (AC_AdvanceIfMatch(ac, VECSIM_ALPHA)) {
+      double tmpd;
+      if ((rc = AC_GetDouble(ac, &tmpd, AC_F_GE0)) != AC_OK) {
+        params->algoParams.svsParams.alpha = (float)tmpd;
+        QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_ALPHA), rc);
+        return 0;
+      }
+    } else if (AC_AdvanceIfMatch(ac, VECSIM_USE_SEARCH_HISTORY)) {
+      if ((rc = parseVectorField_GetOption(ac, &params->algoParams.svsParams.use_search_history)) != AC_OK) {
+        QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_USE_SEARCH_HISTORY), rc);
+        return 0;
+      }
     } else {
       QERR_MKBADARGS_FMT(status, "Bad arguments for algorithm %s: %s", VECSIM_ALGORITHM_SVS, AC_GetStringNC(ac, NULL));
       return 0;
@@ -1035,9 +1109,8 @@ static int parseVectorField(IndexSpec *sp, StrongRef sp_ref, FieldSpec *fs, Args
     result = parseVectorField_hnsw(fs, params, ac, status);
   } else if (STR_EQCASE(algStr, len, VECSIM_ALGORITHM_SVS)) {
     fs->vectorOpts.vecSimParams.algo = VecSimAlgo_SVS;
-    fs->vectorOpts.vecSimParams.algoParams.svsParams.blockSize = 0;
-    fs->vectorOpts.vecSimParams.algoParams.svsParams.num_threads = 0;
-    fs->vectorOpts.vecSimParams.algoParams.svsParams.multi = false;
+    // here it's supposed that all fs->vectorOpts.vecSimParams.algoParams.svsParams.* are equal to zeroes
+    // rely on memset above ( memset(&fs->vectorOpts.vecSimParams, 0, sizeof(VecSimParams)); )
     result = parseVectorField_svs(fs, &fs->vectorOpts.vecSimParams, ac, status);
   } else {
     QERR_MKBADARGS_AC(status, "vector similarity algorithm", AC_ERR_ENOENT);
