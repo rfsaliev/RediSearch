@@ -50,6 +50,7 @@
 #define VECSIM_USE_SEARCH_HISTORY "USE_SEARCH_HISTORY"
 #define VECSIM_USE_SEARCH_HISTORY_ON "ON"
 #define VECSIM_USE_SEARCH_HISTORY_OFF "OFF"
+#define VECSIM_USE_SEARCH_HISTORY_DEFAULT "DEFAULT"
 #define VECSIM_QUANT_BITS "QUANTIZATION"
 #define VECSIM_QUANT_BITS_NONE "NO"
 #define VECSIM_QUANT_BITS_0 "0"
@@ -146,6 +147,8 @@ size_t VecSimType_sizeof(VecSimType type);
 const char *VecSimType_ToString(VecSimType type);
 const char *VecSimMetric_ToString(VecSimMetric metric);
 const char *VecSimAlgorithm_ToString(VecSimAlgo algo);
+const char *VecSimQuantBits_ToString(VecSimQuantBits quantBits);
+const char *VecSimSearchHistory_ToString(VecSimOptionBool option);
 
 void VecSimParams_Cleanup(VecSimParams *params);
 

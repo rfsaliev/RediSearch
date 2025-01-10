@@ -919,10 +919,10 @@ static int parseVectorField_svs(FieldSpec *fs, VecSimParams *params, ArgsCursor 
     } else if (AC_AdvanceIfMatch(ac, VECSIM_ALPHA)) {
       double tmpd;
       if ((rc = AC_GetDouble(ac, &tmpd, AC_F_GE0)) != AC_OK) {
-        params->algoParams.svsParams.alpha = (float)tmpd;
         QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_ALPHA), rc);
         return 0;
       }
+      params->algoParams.svsParams.alpha = (float)tmpd;
     } else if (AC_AdvanceIfMatch(ac, VECSIM_USE_SEARCH_HISTORY)) {
       if ((rc = parseVectorField_GetOption(ac, &params->algoParams.svsParams.use_search_history)) != AC_OK) {
         QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_USE_SEARCH_HISTORY), rc);
