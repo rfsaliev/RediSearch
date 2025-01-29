@@ -538,6 +538,8 @@ static int parseVectorField_GetQuantBits(ArgsCursor *ac, VecSimQuantBits  *quant
     *quantBits = VecSimQuant_4;
   else if (STR_EQCASE(quantBitsStr, len, VECSIM_QUANT_BITS_8))
     *quantBits = VecSimQuant_8;
+  else if (STR_EQCASE(quantBitsStr, len, VECSIM_QUANT_BITS_4X4))
+    *quantBits = VecSimQuant_4x4;
   else if (STR_EQCASE(quantBitsStr, len, VECSIM_QUANT_BITS_4X8))
     *quantBits = VecSimQuant_4x8;
   else

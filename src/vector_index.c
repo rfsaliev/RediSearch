@@ -253,6 +253,7 @@ const char *VecSimQuantBits_ToString(VecSimQuantBits quantBits) {
         case VecSimQuant_NONE: return VECSIM_QUANT_BITS_NONE;
         case VecSimQuant_4: return VECSIM_QUANT_BITS_4;
         case VecSimQuant_8: return VECSIM_QUANT_BITS_8;
+        case VecSimQuant_4x4: return VECSIM_QUANT_BITS_4X4;
         case VecSimQuant_4x8: return VECSIM_QUANT_BITS_4X8;
     }
     return NULL;
