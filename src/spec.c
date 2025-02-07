@@ -918,6 +918,11 @@ static int parseVectorField_svs(FieldSpec *fs, VecSimParams *params, ArgsCursor 
         QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_USE_SEARCH_HISTORY), rc);
         return 0;
       }
+    } else if (AC_AdvanceIfMatch(ac, VECSIM_EPSILON)) {
+      if ((rc = AC_GetDouble(ac, &params->algoParams.svsParams.epsilon, AC_F_GE0)) != AC_OK) {
+        QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_HNSW, VECSIM_EPSILON), rc);
+        return 0;
+      }
     } else {
       QERR_MKBADARGS_FMT(status, "Bad arguments for algorithm %s: %s", VECSIM_ALGORITHM_SVS, AC_GetStringNC(ac, NULL));
       return 0;
@@ -943,7 +948,7 @@ static int parseVectorField_svs(FieldSpec *fs, VecSimParams *params, ArgsCursor 
   // Calculating expected blob size of a vector in bytes.
   fs->vectorOpts.expBlobSize = params->algoParams.svsParams.dim * VecSimType_sizeof(params->algoParams.svsParams.type);
 
-  return parseVectorField_validate_svs(&fs->vectorOpts.vecSimParams, status);
+  return parseVectorField_validate_svs(params, status);
 }
 
 // Parse the arguments of a TEXT field

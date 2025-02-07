@@ -195,6 +195,7 @@ int IndexInfoCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
         REPLY_KVSTR("quantization", VecSimQuantBits_ToString(algo_params.svsParams.quantBits));
         REPLY_KVSTR("use_search_history", VecSimSearchHistory_ToString(algo_params.svsParams.use_search_history));
         REPLY_KVNUM("alpha", algo_params.svsParams.alpha);
+        REPLY_KVNUM("epsilon", algo_params.svsParams.epsilon);
       }
     }
 
