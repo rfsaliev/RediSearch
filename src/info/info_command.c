@@ -185,7 +185,6 @@ int IndexInfoCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
         REPLY_KVSTR("data_type", VecSimType_ToString(algo_params.svsParams.type));
         REPLY_KVINT("dim", algo_params.svsParams.dim);
         REPLY_KVSTR("distance_metric", VecSimMetric_ToString(algo_params.svsParams.metric));
-        REPLY_KVINT("initialCapacity", algo_params.svsParams.initialCapacity);
         REPLY_KVINT("blockSize", algo_params.svsParams.blockSize);
         REPLY_KVINT("num_threads", algo_params.svsParams.num_threads);
         REPLY_KVINT("graph_degree", algo_params.svsParams.graph_max_degree);

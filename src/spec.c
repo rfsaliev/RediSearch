@@ -628,17 +628,10 @@ static int parseVectorField_validate_svs(VecSimParams *params, QueryError *statu
   if (params->algoParams.svsParams.blockSize == 0) { // indicates that block size was not set by the user
     params->algoParams.svsParams.blockSize = MIN(DEFAULT_BLOCK_SIZE, maxBlockSize);
   }
-  if (params->algoParams.svsParams.initialCapacity == SIZE_MAX) { // indicates that initial capacity was not set by the user
-    params->algoParams.svsParams.initialCapacity = params->algoParams.svsParams.blockSize;
-  }
   // Calculating index size estimation, after first vector block was allocated.
   size_t index_size_estimation = VecSimIndex_EstimateInitialSize(params);
   index_size_estimation += elementSize * params->algoParams.svsParams.blockSize;
   size_t free_memory = memoryLimit - used_memory;
-  if (params->algoParams.svsParams.initialCapacity > maxBlockSize) {
-    QueryError_SetErrorFmt(status, QUERY_ELIMIT, "Vector index initial capacity %zu exceeded server limit (%zu with the given parameters)", params->algoParams.svsParams.initialCapacity, maxBlockSize);
-    return 0;
-  }
   if (params->algoParams.svsParams.blockSize > maxBlockSize) {
     QueryError_SetErrorFmt(status, QUERY_ELIMIT, "Vector index block size %zu exceeded server limit (%zu with the given parameters)", params->algoParams.svsParams.blockSize, maxBlockSize);
     return 0;
@@ -872,11 +865,6 @@ static int parseVectorField_svs(FieldSpec *fs, VecSimParams *params, ArgsCursor 
         return 0;
       }
       mandmetric = true;
-    } else if (AC_AdvanceIfMatch(ac, VECSIM_INITIAL_CAP)) {
-      if ((rc = AC_GetSize(ac, &params->algoParams.svsParams.initialCapacity, 0)) != AC_OK) {
-        QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_INITIAL_CAP), rc);
-        return 0;
-      }
     } else if (AC_AdvanceIfMatch(ac, VECSIM_BLOCKSIZE)) {
       if ((rc = AC_GetSize(ac, &params->algoParams.svsParams.blockSize, AC_F_GE1)) != AC_OK) {
         QERR_MKBADARGS_AC(status, VECSIM_ALGO_PARAM_MSG(VECSIM_ALGORITHM_SVS, VECSIM_BLOCKSIZE), rc);
